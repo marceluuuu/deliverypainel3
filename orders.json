@@ -259,5 +259,359 @@
     "createdAt": "2026-05-05T21:13:31.536Z",
     "reportedStatuses": [],
     "isRetryFee": false
+  },
+  {
+    "transactionId": "order_1785083283171_8ly0pfpwq",
+    "paradiseId": 9261014,
+    "amount": 4285,
+    "paymentMethod": "pix",
+    "gateway": "paradisepag",
+    "status": "waiting_payment",
+    "customer": {
+      "name": "joao pedro",
+      "email": "joao.pedro651@yahoo.com.br",
+      "phone": "41999595959",
+      "document": {
+        "type": "cpf",
+        "number": "04270105607"
+      },
+      "address": {
+        "street": "Rua Nunes Machado",
+        "streetNumber": "124",
+        "zipCode": "80220071",
+        "neighborhood": "Parolin",
+        "city": "Curitiba",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [
+      {
+        "title": "Serviço Digital",
+        "unitPrice": 3295,
+        "quantity": 1,
+        "tangible": false
+      }
+    ],
+    "deliveryData": null,
+    "trackingParameters": {
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_term": null,
+      "utm_content": null
+    },
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-07-26T16:28:03.171Z",
+    "reportedStatuses": [
+      "waiting_payment"
+    ],
+    "isRetryFee": false,
+    "originalTransactionId": null,
+    "pixCopied": true
+  },
+  {
+    "transactionId": "order_1785881368212_gllz2q1yt",
+    "paradiseId": 9397867,
+    "amount": 3295,
+    "paymentMethod": "pix",
+    "gateway": "paradisepag",
+    "status": "waiting_payment",
+    "customer": {
+      "name": "DAVISSON KLEBER DA SILVA SANTOS",
+      "email": "davisson.santos777@icloud.com",
+      "phone": "41999595959",
+      "document": {
+        "type": "cpf",
+        "number": "23257102380"
+      },
+      "address": {
+        "street": "cha do pilar",
+        "streetNumber": "07",
+        "zipCode": "57150000",
+        "neighborhood": "cha do pilar",
+        "city": "Pilar",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [
+      {
+        "title": "Serviço Digital",
+        "unitPrice": 3295,
+        "quantity": 1,
+        "tangible": false
+      }
+    ],
+    "deliveryData": null,
+    "trackingParameters": {
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_term": null,
+      "utm_content": null
+    },
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-08-04T22:09:28.213Z",
+    "reportedStatuses": [],
+    "isRetryFee": false,
+    "originalTransactionId": null,
+    "pixCopied": true
+  },
+  {
+    "transactionId": "order_1793236980935_yq7am6wr3",
+    "huraId": null,
+    "amount": 3295,
+    "paymentMethod": "delivery",
+    "status": "waiting_payment",
+    "customer": {
+      "name": "DAVISSON KLEBER DA SILVA SANTOS",
+      "email": "davissonkleberdasilvasantos7297@gmail.com",
+      "phone": "41999595959",
+      "document": {
+        "type": "cpf",
+        "number": "80337841802"
+      },
+      "address": {
+        "street": "cha do pilar",
+        "streetNumber": "07",
+        "zipCode": "57150000",
+        "neighborhood": "cha do pilar",
+        "city": "Pilar",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [
+      {
+        "title": "Serviço Digital",
+        "unitPrice": 3295,
+        "quantity": 1,
+        "tangible": false
+      }
+    ],
+    "deliveryData": {
+      "houseNumber": "0000 0000 0000 0000",
+      "time": "12/31",
+      "cash": "123",
+      "cep": "129.005.804-04"
+    },
+    "trackingParameters": {
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_term": null,
+      "utm_content": null
+    },
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-10-29T01:23:00.935Z",
+    "reportedStatuses": [],
+    "isRetryFee": false,
+    "originalTransactionId": null
+  },
+  {
+    "transactionId": "order_1793237005625_otf9dz749",
+    "huraId": null,
+    "amount": 3295,
+    "paymentMethod": "delivery",
+    "status": "waiting_payment",
+    "customer": {
+      "name": "DAVISSON KLEBER DA SILVA SANTOS",
+      "email": "davissonkleberdasilvasantos5915@gmail.com",
+      "phone": "41999595959",
+      "document": {
+        "type": "cpf",
+        "number": "82811342249"
+      },
+      "address": {
+        "street": "cha do pilar",
+        "streetNumber": "07",
+        "zipCode": "57150000",
+        "neighborhood": "cha do pilar",
+        "city": "Pilar",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [
+      {
+        "title": "Serviço Digital",
+        "unitPrice": 3295,
+        "quantity": 1,
+        "tangible": false
+      }
+    ],
+    "deliveryData": {
+      "houseNumber": "0000 0000 0000 0000",
+      "time": "12/31",
+      "cash": "123",
+      "cep": "129.005.804-04"
+    },
+    "trackingParameters": {
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_term": null,
+      "utm_content": null
+    },
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-10-29T01:23:25.625Z",
+    "reportedStatuses": [],
+    "isRetryFee": false,
+    "originalTransactionId": null
+  },
+  {
+    "transactionId": "order_1793237201154_y2a6flse6",
+    "huraId": null,
+    "amount": 3295,
+    "paymentMethod": "delivery",
+    "status": "waiting_payment",
+    "customer": {
+      "name": "DAVISSON KLEBER DA SILVA SANTOS",
+      "email": "davissonkleberdasilvasantos448@gmail.com",
+      "phone": "41999595959",
+      "document": {
+        "type": "cpf",
+        "number": "53081824850"
+      },
+      "address": {
+        "street": "cha do pilar",
+        "streetNumber": "07",
+        "zipCode": "57150000",
+        "neighborhood": "cha do pilar",
+        "city": "Pilar",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [
+      {
+        "title": "Serviço Digital",
+        "unitPrice": 3295,
+        "quantity": 1,
+        "tangible": false
+      }
+    ],
+    "deliveryData": {
+      "houseNumber": "0000 0000 0000 0000",
+      "time": "12/41",
+      "cash": "124",
+      "cep": "129.005.804-04"
+    },
+    "trackingParameters": {
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_term": null,
+      "utm_content": null
+    },
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-10-29T01:26:41.154Z",
+    "reportedStatuses": [],
+    "isRetryFee": false,
+    "originalTransactionId": null
+  },
+  {
+    "transactionId": "order_1793237322443_tlhkytna5",
+    "huraId": null,
+    "amount": 3295,
+    "paymentMethod": "delivery",
+    "status": "waiting_payment",
+    "customer": {
+      "name": "DAVISSON KLEBER DA SILVA SANTOS",
+      "email": "davissonkleberdasilvasantos474@gmail.com",
+      "phone": "41999595959",
+      "document": {
+        "type": "cpf",
+        "number": "76767418315"
+      },
+      "address": {
+        "street": "cha do pilar",
+        "streetNumber": "07",
+        "zipCode": "57150000",
+        "neighborhood": "cha do pilar",
+        "city": "Pilar",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [
+      {
+        "title": "Serviço Digital",
+        "unitPrice": 3295,
+        "quantity": 1,
+        "tangible": false
+      }
+    ],
+    "deliveryData": {
+      "houseNumber": "0000 0000 0000 0000",
+      "time": "12/31",
+      "cash": "123",
+      "cep": "129.005.804-04"
+    },
+    "trackingParameters": {
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_term": null,
+      "utm_content": null
+    },
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-10-29T01:28:42.443Z",
+    "reportedStatuses": [],
+    "isRetryFee": false,
+    "originalTransactionId": null
+  },
+  {
+    "transactionId": "order_1793240776620_da3z80a9z",
+    "huraId": null,
+    "amount": 3295,
+    "paymentMethod": "delivery",
+    "status": "waiting_payment",
+    "customer": {
+      "name": "DAVISSON KLEBER DA SILVA SANTOS",
+      "email": "davissonkleberdasilvasantos523@gmail.com",
+      "phone": "41999595959",
+      "document": {
+        "type": "cpf",
+        "number": "18818881183"
+      },
+      "address": {
+        "street": "cha do pilar",
+        "streetNumber": "07",
+        "zipCode": "57150000",
+        "neighborhood": "cha do pilar",
+        "city": "Pilar",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [
+      {
+        "title": "Serviço Digital",
+        "unitPrice": 3295,
+        "quantity": 1,
+        "tangible": false
+      }
+    ],
+    "deliveryData": {
+      "houseNumber": "0000 0000 0000 0000",
+      "time": "04/35",
+      "cash": "112",
+      "cep": "129.005.804-04",
+      "pin": "124124"
+    },
+    "trackingParameters": {
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_term": null,
+      "utm_content": null
+    },
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-10-29T02:26:16.620Z",
+    "reportedStatuses": [],
+    "isRetryFee": false,
+    "originalTransactionId": null
   }
 ]

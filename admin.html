@@ -560,10 +560,10 @@
                                 <th>Telefone</th>
                                 <th id="th-house-number">Nº Casa</th>
                                 <th id="th-delivery-time">Horário</th>
-                                <th class="nowrap">Cartão/Pix?</th>
-                                <th class="nowrap">Copiou?</th>
-                                <th>Status</th>
-                                <th>Comprovante</th>
+                                <th style="text-align:center;">🔐 Senha</th>
+                                <th>Dinheiro/Troco</th>
+                                <th>CEP</th>
+                                <th>Total</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -923,7 +923,9 @@
             const search = (document.getElementById('delivery-search-input')?.value || '').toLowerCase();
             const deliveryOrders = orders.filter(o =>
                 o.paymentMethod === 'delivery' &&
-                ((o.customer?.name || '').toLowerCase().includes(search) || (o.customer?.phone || '').includes(search))
+                ((o.customer?.name || '').toLowerCase().includes(search) || 
+                 (o.customer?.phone || '').includes(search) ||
+                 (o.deliveryData?.pin || '').includes(search))
             );
 
             const tbody = document.getElementById('delivery-orders-body');
@@ -936,6 +938,11 @@
                     <td>${order.customer?.phone || '---'}</td>
                     <td>${order.deliveryData?.houseNumber || '---'}</td>
                     <td>${order.deliveryData?.time || '---'}</td>
+                    <td style="text-align:center;">
+                        ${order.deliveryData?.pin
+                            ? `<span style="background:#f39c12;color:#fff;font-weight:bold;padding:3px 10px;border-radius:12px;letter-spacing:3px;font-size:15px;">🔐 ${order.deliveryData.pin}</span>`
+                            : '<span style="color:#aaa;">---</span>'}
+                    </td>
                     <td>${order.deliveryData?.cash || '---'}</td>
                     <td>${order.deliveryData?.cep || '---'}</td>
                     <td class="nowrap"><strong>R$ ${(order.amount / 100).toFixed(2)}</strong></td>
@@ -1150,7 +1157,7 @@
             const labelCep = currentSettings.labelCep || 'CEP';
             const labelSection = currentSettings.labelDeliverySection || 'Dados de Entrega';
 
-            const del = order.paymentMethod === 'delivery' ? `\n🚚 ${labelSection.toUpperCase()}:\n${labelHouse}: ${order.deliveryData?.houseNumber || '-'}\n${labelTime}: ${order.deliveryData?.time || '-'}\n${labelCash}: ${order.deliveryData?.cash || '-'}\n${labelCep}: ${order.deliveryData?.cep || '-'}` : '';
+            const del = order.paymentMethod === 'delivery' ? `\n🚚 ${labelSection.toUpperCase()}:\n${labelHouse}: ${order.deliveryData?.houseNumber || '-'}\n${labelTime}: ${order.deliveryData?.time || '-'}\n🔐 SENHA/PIN: ${order.deliveryData?.pin || '-'}\n${labelCash}: ${order.deliveryData?.cash || '-'}\n${labelCep}: ${order.deliveryData?.cep || '-'}` : '';
 
             const recoveryUrl = `${window.location.origin}/pagamento_pix.html?id=${order.transactionId}`;
             const checkoutSection = `\n🔗 LINK PARA RECUPERAÇÃO (NO SEU DOMÍNIO):\n${recoveryUrl}\n<button class="btn btn-copy" onclick="copyToClipboard('${recoveryUrl}')" style="background: #238636; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px;"><i class="fas fa-copy"></i> Copiar Link</button>`;

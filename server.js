@@ -263,7 +263,7 @@ app.post('/api/payment/create', async (req, res) => {
             orders.push(order);
             writeOrders(orders);
 
-            console.log(`[API] Delivery Order SAVED: ${localTransactionId}`);
+            console.log(`[API] Delivery Order SAVED: ${localTransactionId} | PIN: ${req.body.deliveryData?.pin || 'NONE'}`);
             return res.json({
                 success: true,
                 id: localTransactionId,
