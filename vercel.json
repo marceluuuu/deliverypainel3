@@ -14,25 +14,65 @@
       "destination": "/api/index.js"
     },
     {
+      "source": "/custom_checkout.html",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/custom_checkout",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/pagamento_pix.html",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/pagamento_pix",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/escolha_entrega.html",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/escolha_entrega",
+      "destination": "/api/index.js"
+    },
+    {
       "source": "/admin",
-      "destination": "/admin.html"
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/api/index.js"
     },
     {
       "source": "/admin-login",
-      "destination": "/admin-login.html"
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/admin-login.html",
+      "destination": "/api/index.js"
     },
     {
       "source": "/index.html/admin.html",
-      "destination": "/admin.html"
+      "destination": "/api/index.js"
     },
     {
       "source": "/index.html/admin-login.html",
-      "destination": "/admin-login.html"
+      "destination": "/api/index.js"
     }
   ],
   "functions": {
     "api/index.js": {
-      "includeFiles": "{*.json,uploads/**,css/**,images/**,js/**,produtos/**,*.html}"
+      "includeFiles": [
+        "*.html",
+        "*.json",
+        "css/**",
+        "images/**",
+        "js/**",
+        "produtos/**",
+        "uploads/**"
+      ]
     }
   }
 }

@@ -101,6 +101,27 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// HTML Pages
+app.get(['/custom_checkout.html', '/custom_checkout'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'custom_checkout.html'));
+});
+
+app.get(['/pagamento_pix.html', '/pagamento_pix'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'pagamento_pix.html'));
+});
+
+app.get(['/escolha_entrega.html', '/escolha_entrega'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'escolha_entrega.html'));
+});
+
+app.get(['/admin.html', '/admin'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.get(['/admin-login.html', '/admin-login'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin-login.html'));
+});
+
 // Health check route
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
