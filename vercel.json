@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/api/(.*)",
@@ -64,15 +64,7 @@
   ],
   "functions": {
     "api/index.js": {
-      "includeFiles": [
-        "*.html",
-        "*.json",
-        "css/**",
-        "images/**",
-        "js/**",
-        "produtos/**",
-        "uploads/**"
-      ]
+      "includeFiles": "{*.html,*.json,css/**,images/**,js/**,produtos/**,uploads/**}"
     }
   }
 }
