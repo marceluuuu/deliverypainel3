@@ -15,10 +15,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Added to handle form-encoded webhooks
 
+// Environment check
+const isVercel = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+
 // Ensure uploads directory exists
-const UPLOADS_DIR = path.join(__dirname, 'uploads', 'receipts');
-if (!fs.existsSync(UPLOADS_DIR)) {
-    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+const UPLOADS_DIR = isVercel
+    ? path.join('/tmp', 'uploads', 'receipts')
+    : path.join(__dirname, 'uploads', 'receipts');
+
+try {
+    if (!fs.existsSync(UPLOADS_DIR)) {
+        fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+    }
+} catch (e) {
+    console.warn('[Storage] Notice for uploads directory:', e.message);
 }
 
 // Multer configuration
@@ -32,15 +42,24 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Middleware
-// middleware is now defined above to ensure order
-
 // Request logging for debugging
 app.use((req, res, next) => {
     console.log(`[DEBUG] ${new Date().toISOString()} - ${req.method} ${req.url}`);
     next();
 });
-app.use(express.static(__dirname)); // Serve static files
+
+// Serve static files from root and subdirectories
+app.use(express.static(process.cwd()));
+app.use(express.static(__dirname));
+app.use('/css', express.static(path.join(process.cwd(), 'css')));
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/images', express.static(path.join(process.cwd(), 'images')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/js', express.static(path.join(process.cwd(), 'js')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/produtos', express.static(path.join(process.cwd(), 'produtos')));
+app.use('/produtos', express.static(path.join(__dirname, 'produtos')));
+app.use('/uploads', express.static(UPLOADS_DIR));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ============================================
@@ -100,13 +119,21 @@ app.get('/index.html/admin-login.html', (req, res) => {
 // Admin Configuration & Helper Functions
 // ============================================
 
-const ORDERS_FILE = path.join(__dirname, 'orders.json');
+const ORDERS_FILE = isVercel 
+    ? path.join('/tmp', 'orders.json') 
+    : path.join(__dirname, 'orders.json');
 const ADMIN_TOKEN = 'admin123secret';
 const ADMIN_USER = 'admin';
 const ADMIN_PASS = 'pizza2024';
 
 function readOrders() {
     try {
+        if (isVercel && !fs.existsSync(ORDERS_FILE)) {
+            const seed = path.join(__dirname, 'orders.json');
+            if (fs.existsSync(seed)) {
+                fs.copyFileSync(seed, ORDERS_FILE);
+            }
+        }
         if (fs.existsSync(ORDERS_FILE)) {
             return JSON.parse(fs.readFileSync(ORDERS_FILE, 'utf8'));
         }
@@ -120,14 +147,23 @@ function writeOrders(orders) {
     } catch (err) { console.error('Error writing orders:', err); }
 }
 
+const SETTINGS_FILE = isVercel 
+    ? path.join('/tmp', 'settings.json') 
+    : path.join(__dirname, 'settings.json');
+
 function readSettings() {
     try {
-        const SETTINGS_FILE = path.join(__dirname, 'settings.json');
+        if (isVercel && !fs.existsSync(SETTINGS_FILE)) {
+            const seed = path.join(__dirname, 'settings.json');
+            if (fs.existsSync(seed)) {
+                fs.copyFileSync(seed, SETTINGS_FILE);
+            }
+        }
         if (fs.existsSync(SETTINGS_FILE)) {
             return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
         }
     } catch (err) { console.error('Error reading settings:', err); }
-    return { gateways: { active: 'hurapay' } };
+    return { gateways: { active: 'avenpayments' } };
 }
 
 // ============================================
@@ -1763,17 +1799,6 @@ app.delete('/api/orders/:transactionId', (req, res) => {
 // ============================================
 // Settings API (Dynamic Control)
 // ============================================
-const SETTINGS_FILE = path.join(__dirname, 'settings.json');
-
-function readSettings() {
-    try {
-        if (fs.existsSync(SETTINGS_FILE)) {
-            return JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
-        }
-    } catch (err) { console.error('Error reading settings:', err); }
-    // Default settings
-    return {};
-}
 
 function writeSettings(settings) {
     try {
@@ -1838,7 +1863,7 @@ const CLEANUP_INTERVAL = 5000; // Cleanup stale users every 5 seconds
 const TIMEOUT_MS = 12000; // User considered offline after 12s (slightly > 2 heartbeats)
 
 // Periodic cleanup
-setInterval(() => {
+const cleanupTimer = setInterval(() => {
     const now = Date.now();
     for (const userId in activeUsers) {
         if (now - activeUsers[userId].lastSeen > TIMEOUT_MS) {
@@ -1846,6 +1871,7 @@ setInterval(() => {
         }
     }
 }, CLEANUP_INTERVAL);
+if (cleanupTimer && cleanupTimer.unref) cleanupTimer.unref();
 
 app.post('/api/analytics/heartbeat', (req, res) => {
     try {
@@ -1896,10 +1922,18 @@ app.get('/api/analytics/online', (req, res) => {
 // ============================================
 // Products API (Dynamic Pricing)
 // ============================================
-const PRODUCTS_FILE = path.join(__dirname, 'products.json');
+const PRODUCTS_FILE = isVercel 
+    ? path.join('/tmp', 'products.json') 
+    : path.join(__dirname, 'products.json');
 
 function readProducts() {
     try {
+        if (isVercel && !fs.existsSync(PRODUCTS_FILE)) {
+            const seed = path.join(__dirname, 'products.json');
+            if (fs.existsSync(seed)) {
+                fs.copyFileSync(seed, PRODUCTS_FILE);
+            }
+        }
         if (fs.existsSync(PRODUCTS_FILE)) {
             return JSON.parse(fs.readFileSync(PRODUCTS_FILE, 'utf8'));
         }
@@ -1991,9 +2025,14 @@ app.post('/api/products', (req, res) => {
 // Start Server
 // ============================================
 
-app.listen(PORT, HOST, () => {
-    console.log(`\n🚀 Server running on http://${HOST}:${PORT}`);
-    console.log(`📁 Serving static files from: ${__dirname}`);
-    console.log(`🔒 API Keys loaded: AvenPayments=${!!AVEN_API_KEY}, ParadisePag=${!!PARADISE_API_KEY}, Utmify=${!!process.env.UTMIFY_API_TOKEN}`);
-    console.log(`📊 Analytics active\n`);
-});
+if (require.main === module) {
+    app.listen(PORT, HOST, () => {
+        console.log(`\n🚀 Server running on http://${HOST}:${PORT}`);
+        console.log(`📁 Serving static files from: ${__dirname}`);
+        console.log(`🔒 API Keys loaded: AvenPayments=${!!AVEN_API_KEY}, ParadisePag=${!!PARADISE_API_KEY}, Utmify=${!!process.env.UTMIFY_API_TOKEN}`);
+        console.log(`📊 Analytics active\n`);
+    });
+}
+
+module.exports = app;
+

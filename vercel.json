@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/admin-login",
+      "destination": "/admin-login.html"
+    },
+    {
+      "source": "/index.html/admin.html",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/index.html/admin-login.html",
+      "destination": "/admin-login.html"
+    }
+  ],
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "{*.json,uploads/**,css/**,images/**,js/**,produtos/**,*.html}"
+    }
+  }
+}
