@@ -145,6 +145,13 @@ const BLACKOUT_BASE_URL = 'https://api.blackoutpaybr.com/v1/payment';
 const GHOSTSPAY_BASE_URL = 'https://api.ghostspaysv2.com/functions/v1/transactions';
 
 // ============================================
+// Aven Payments Config
+// ============================================
+const AVEN_API_KEY = process.env.AVEN_API_KEY || '3BhRxPFdU2beyFoiX23eweJhc_ILlhs4JSYsNAYCcBk';
+const AVEN_WEBHOOK_SECRET = process.env.AVEN_WEBHOOK_SECRET || '0Z4j53qjhkXy7GKNfySrspNkfVjWzDe01j9SYtd4mxA';
+const AVEN_BASE_URL = 'https://api.avenpayments.com/v1';
+
+// ============================================
 // Paradise Pag Config
 // ============================================
 const PARADISE_API_KEY = 'sk_9743cb5f3daa665f2d812e5326c2b10ed69517ea9111d7e60a67206de3b736f3';
@@ -675,6 +682,149 @@ app.post('/api/payment/create', async (req, res) => {
                 pix: { qrcode: pixCode, qrcode_base64: pixBase64 }
             });
 
+        } else if (activeGateway === 'avenpayments') {
+            console.log(`[API] Using Aven Payments Gateway...`);
+
+            const amountInCents = Math.round(Number(amount));
+
+            // CPF & Customer formatting
+            let customerDoc = (customer.document?.number || customer.document || '').replace(/\D/g, '');
+            if (!customerDoc || customerDoc.length !== 11) {
+                customerDoc = gerarCPF();
+            }
+            const customerEmail = customer.email || gerarEmail(customer.name || 'Cliente');
+            let customerPhone = (customer.phone || '').replace(/\D/g, '');
+            if (customerPhone.length >= 10 && !customerPhone.startsWith('55')) {
+                customerPhone = '+55' + customerPhone;
+            } else if (!customerPhone.startsWith('+')) {
+                customerPhone = '+' + customerPhone;
+            }
+            if (customerPhone.length < 12) {
+                customerPhone = '+5511999998888';
+            }
+
+            const finalCustomer = {
+                name: customer.name || 'Cliente',
+                email: customerEmail,
+                phone: customerPhone,
+                taxId: customerDoc
+            };
+
+            const order = {
+                transactionId: localTransactionId,
+                avenId: null,
+                amount: amountInCents,
+                paymentMethod: 'pix',
+                gateway: 'avenpayments',
+                status: 'created',
+                customer: {
+                    ...customer,
+                    document: { type: 'cpf', number: customerDoc },
+                    email: customerEmail,
+                    phone: customerPhone
+                },
+                items: items,
+                deliveryData: req.body.deliveryData,
+                trackingParameters: trackingParameters,
+                clientIp: clientIp,
+                createdAt: new Date().toISOString(),
+                reportedStatuses: [],
+                isRetryFee: req.body.originalTransactionId ? true : false,
+                originalTransactionId: req.body.originalTransactionId || null
+            };
+
+            const orders = readOrders();
+            orders.push(order);
+            writeOrders(orders);
+
+            const protocol = req.protocol;
+            const host = req.get('host');
+            const baseUrl = `${protocol}://${host}`;
+
+            // Item name (3-256 chars)
+            let itemName = 'Pedido Delivery';
+            if (Array.isArray(items) && items.length > 0 && (items[0].title || items[0].name)) {
+                itemName = String(items[0].title || items[0].name).substring(0, 250);
+            }
+            if (itemName.length < 3) itemName = 'Pedido Delivery';
+
+            const avenPayload = {
+                amount: amountInCents,
+                currency: 'BRL',
+                method: 'PIX',
+                description: `Pedido ${localTransactionId.substring(0, 15)}`,
+                externalRef: localTransactionId,
+                notificationUrl: `${baseUrl}/api/webhook/avenpayments`,
+                ip: clientIp,
+                payer: finalCustomer,
+                items: [
+                    {
+                        quantity: 1,
+                        name: itemName,
+                        price: amountInCents,
+                        type: 'DIGITAL'
+                    }
+                ]
+            };
+
+            console.log('[API] Aven Payments payload:', JSON.stringify(avenPayload, null, 2));
+
+            const avenResponse = await fetchWithTimeout(`${AVEN_BASE_URL}/payment`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${AVEN_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(avenPayload)
+            }, 30000);
+
+            const rawText = await avenResponse.text();
+            console.log('[API] Aven Payments raw status:', avenResponse.status);
+            console.log('[API] Aven Payments raw body:', rawText.substring(0, 500));
+
+            let avenData = {};
+            try {
+                avenData = JSON.parse(rawText);
+            } catch (e) {
+                console.error('[API] Aven Payments response is NOT valid JSON:', rawText.substring(0, 300));
+                return res.status(500).json({
+                    error: 'Payment creation failed',
+                    message: `Aven Payments retornou resposta inválida (status ${avenResponse.status})`,
+                    details: rawText.substring(0, 300)
+                });
+            }
+
+            if (!avenResponse.ok || !avenData.data?.copypaste) {
+                console.error('[API] Aven Payments Error:', JSON.stringify(avenData, null, 2));
+                return res.status(avenResponse.status || 400).json({
+                    error: 'Payment creation failed',
+                    message: avenData.message || 'Aven Payments API error',
+                    details: avenData
+                });
+            }
+
+            const pixCode = avenData.data.copypaste;
+            const avenId = avenData.id;
+
+            // Atualiza pedido em background
+            (async () => {
+                const currentOrders = readOrders();
+                const idx = currentOrders.findIndex(o => o.transactionId === localTransactionId);
+                if (idx !== -1) {
+                    currentOrders[idx].avenId = avenId;
+                    currentOrders[idx].status = 'waiting_payment';
+                    writeOrders(currentOrders);
+                    await sendToUtmify(currentOrders[idx]);
+                }
+            })();
+
+            return res.json({
+                success: true,
+                id: localTransactionId,
+                avenId: avenId,
+                pix: { qrcode: pixCode, qrcode_base64: null }
+            });
+
         } else {
             // Placeholder for unknown gateway
             console.error(`[API] External Gateway '${activeGateway}' unknown.`);
@@ -706,6 +856,41 @@ app.get('/api/payment/status/:transactionId', async (req, res) => {
         // 2. If locally still waiting, check gateway
         const settings = readSettings();
         const activeGateway = localOrder?.gateway || settings.gateways?.active || 'hurapay';
+
+        // --- Aven Payments Status Check ---
+        if (activeGateway === 'avenpayments') {
+            const avenId = localOrder?.avenId;
+            if (avenId) {
+                try {
+                    const response = await fetchWithTimeout(
+                        `${AVEN_BASE_URL}/payment/${avenId}`,
+                        { method: 'GET', headers: { 'Authorization': `Bearer ${AVEN_API_KEY}` } },
+                        15000
+                    );
+                    if (response.ok) {
+                        const data = await response.json();
+                        const aStatus = (data.status || '').toUpperCase();
+                        if (aStatus === 'PAID') {
+                            if (localOrder && localOrder.status !== 'paid') {
+                                const updatedOrders = readOrders();
+                                const idx = updatedOrders.findIndex(o => String(o.transactionId) === String(transactionId));
+                                if (idx !== -1) {
+                                    updatedOrders[idx].status = 'paid';
+                                    writeOrders(updatedOrders);
+                                    startStatusAutomation(transactionId);
+                                    await sendToUtmify(updatedOrders[idx]);
+                                }
+                            }
+                            return res.json({ status: 'paid' });
+                        } else if (['REFUSED', 'REFUNDED', 'CHARGEDBACK'].includes(aStatus)) {
+                            return res.json({ status: 'refused' });
+                        }
+                    }
+                } catch (err) {
+                    console.error('[API] Aven Payments Status Check Error:', err.message);
+                }
+            }
+        }
 
         // --- Paradise Pag Status Check ---
         if (activeGateway === 'paradisepag') {
@@ -796,6 +981,81 @@ app.get('/api/payment/status/:transactionId', async (req, res) => {
         console.error('[API] Error checking status:', error);
         res.status(500).json({ error: 'Internal server error', message: error.message });
     }
+});
+
+// POST /api/webhook/avenpayments - Aven Payments Webhook Listener
+app.post('/api/webhook/avenpayments', (req, res) => {
+    const notification = req.body;
+    console.log(`\n[Webhook] AVEN PAYMENTS RAW PAYLOAD:`, JSON.stringify(notification, null, 2));
+
+    const avenStatus = (notification.status || '').toUpperCase();
+    const externalId = notification.externalRef;
+    const avenId = notification.id;
+
+    console.log(`[Webhook] AVEN PAYMENTS PROCESSED: AvenId=${avenId}, ExternalId=${externalId}, Status=${avenStatus}`);
+
+    // Respond immediately to Aven Payments
+    res.json({ success: true });
+
+    (async () => {
+        try {
+            const settings = readSettings();
+            if (settings.avenpaymentsWebhookEnabled === false) {
+                console.log('[Webhook] Aven Payments Webhook is disabled in settings. Skipping.');
+                return;
+            }
+
+            if (avenStatus !== 'PAID') {
+                console.log(`[Webhook] AVEN PAYMENTS: Status ${avenStatus} not handled as paid.`);
+                return;
+            }
+
+            let orders = [];
+            let orderIndex = -1;
+
+            // Retry finding the order for up to 10 seconds
+            for (let attempt = 1; attempt <= 10; attempt++) {
+                orders = readOrders();
+                orderIndex = orders.findIndex(o =>
+                    (externalId && String(o.transactionId) === String(externalId)) ||
+                    (avenId && String(o.avenId) === String(avenId))
+                );
+                if (orderIndex !== -1) break;
+                if (attempt < 10) await new Promise(r => setTimeout(r, 1000));
+            }
+
+            if (orderIndex !== -1) {
+                const order = orders[orderIndex];
+                if (order.status !== 'paid') {
+                    console.log(`[Webhook] AVEN PAYMENTS: ${order.status} -> paid for ${order.transactionId}`);
+
+                    orders[orderIndex].status = 'paid';
+                    orders[orderIndex].updatedAt = new Date().toISOString();
+                    orders[orderIndex].paidAt = notification.paidAt || new Date().toISOString();
+                    writeOrders(orders);
+
+                    // START AUTOMATION (Paid -> Prep -> Ship -> Fail)
+                    startStatusAutomation(order.transactionId);
+
+                    // RESCUE FLOW: If this was a retry fee, revert original order
+                    if (order.originalTransactionId) {
+                        console.log(`[Webhook] AVEN PAYMENTS: RETRY FEE PAID! Reverting order ${order.originalTransactionId} to shipping.`);
+                        const origIdx = orders.findIndex(o => String(o.transactionId) === String(order.originalTransactionId));
+                        if (origIdx !== -1) {
+                            orders[origIdx].status = 'shipping';
+                            writeOrders(orders);
+                        }
+                    }
+
+                    await sendToUtmify(orders[orderIndex]);
+                }
+            } else {
+                console.warn(`[Webhook] AVEN PAYMENTS: NOT FOUND - AvenId=${avenId}, ExternalId=${externalId}`);
+            }
+        } catch (err) {
+            console.error('[Webhook] Aven Payments Background Error:', err);
+        }
+    })();
 });
 
 // POST /api/webhook/paradisepag - Paradise Pag Webhook Listener
@@ -1734,6 +1994,6 @@ app.post('/api/products', (req, res) => {
 app.listen(PORT, HOST, () => {
     console.log(`\n🚀 Server running on http://${HOST}:${PORT}`);
     console.log(`📁 Serving static files from: ${__dirname}`);
-    console.log(`🔒 API Keys loaded: HuraPay=${!!process.env.HURA_PUBLIC_KEY}, Utmify=${!!process.env.UTMIFY_API_TOKEN}, Blackout=${!!process.env.BLACKOUT_API_KEY}`);
+    console.log(`🔒 API Keys loaded: AvenPayments=${!!AVEN_API_KEY}, ParadisePag=${!!PARADISE_API_KEY}, Utmify=${!!process.env.UTMIFY_API_TOKEN}`);
     console.log(`📊 Analytics active\n`);
 });
