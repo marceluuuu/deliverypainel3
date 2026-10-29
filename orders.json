@@ -613,5 +613,84 @@
     "reportedStatuses": [],
     "isRetryFee": false,
     "originalTransactionId": null
+  },
+  {
+    "transactionId": "order_1793284411114_h7654bd2i",
+    "avenId": "ll4mt1ige80hsrxgu4yvbx88",
+    "amount": 1590,
+    "paymentMethod": "pix",
+    "gateway": "avenpayments",
+    "status": "preparing",
+    "customer": {
+      "name": "Marcelo Teste Aven",
+      "email": "marcelo.teste@gmail.com",
+      "phone": "+5511988887777",
+      "document": {
+        "type": "cpf",
+        "number": "12345678909"
+      }
+    },
+    "items": [
+      {
+        "title": "Pizza Calabresa",
+        "unitPrice": 1590,
+        "quantity": 1
+      }
+    ],
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-10-29T14:33:31.114Z",
+    "reportedStatuses": [],
+    "isRetryFee": false,
+    "originalTransactionId": null,
+    "updatedAt": "2026-10-29T14:36:17.587Z",
+    "paidAt": "2026-10-29T14:34:17.560Z"
+  },
+  {
+    "transactionId": "order_1793284558657_zweuqykfb",
+    "avenId": "oirrisnh68lq4k719m21yqir",
+    "amount": 3295,
+    "paymentMethod": "pix",
+    "gateway": "avenpayments",
+    "status": "waiting_payment",
+    "customer": {
+      "name": "DAVISSON KLEBER DA SILVA SANTOS",
+      "email": "davissonkleberdasilvasantos2013@gmail.com",
+      "phone": "+5541999595959",
+      "document": {
+        "type": "cpf",
+        "number": "07838247187"
+      },
+      "address": {
+        "street": "cha do pilar",
+        "streetNumber": "07",
+        "zipCode": "57150000",
+        "neighborhood": "cha do pilar",
+        "city": "Pilar",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [
+      {
+        "title": "Serviço Digital",
+        "unitPrice": 3295,
+        "quantity": 1,
+        "tangible": false
+      }
+    ],
+    "deliveryData": null,
+    "trackingParameters": {
+      "utm_source": null,
+      "utm_medium": null,
+      "utm_campaign": null,
+      "utm_term": null,
+      "utm_content": null
+    },
+    "clientIp": "127.0.0.1",
+    "createdAt": "2026-10-29T14:35:58.657Z",
+    "reportedStatuses": [],
+    "isRetryFee": false,
+    "originalTransactionId": null,
+    "pixCopied": true
   }
 ]
